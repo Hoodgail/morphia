@@ -2,7 +2,7 @@
   "name": "morphia",
   "description": "A powerful library designed for transforming complex JSON structures into compact, index-based arrays and back. Ideal for efficient data serialization and deserialization, Morphia simplifies the handling of nested and dynamic data by flattening JSON objects into arrays and reconstructing them with precision.",
   "private": false,
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "author": "Hoodgail Benjamin <hoodgail@proton.me> (https://github.com/Hoodgail)",
   "scripts": {

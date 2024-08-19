@@ -26,6 +26,19 @@ type FlattenObject<T> = T extends object
 
 type Flatten<T> = FlattenedValuesTuple<T> extends (infer U)[] ? U : never;
 
+export enum MorphiaType {
+     Array,
+     Object,
+     Number,
+     String,
+     Bigint,
+     Boolean,
+     Symbol,
+     Undefined,
+     Function
+}
+
+
 /**
  * Morphia class for converting complex objects to and from arrays.
  */
@@ -44,8 +57,43 @@ export class Morphia {
       * @returns {number} The unique key for the path and type.
       * @private
       */
-     private getOrCreateKey(path: string, type: string): number {
-          const keyWithType = `${path}${this.typeMarker}${type}`;
+     private getOrCreateKey(path: string, type: "string" | "number" | "bigint" | "boolean" | "symbol" | "undefined" | "object" | "function" | "array"): number {
+
+          let typeEnum: MorphiaType;
+
+          switch (type) {
+               case "string":
+                    typeEnum = MorphiaType.String;
+                    break;
+               case "number":
+                    typeEnum = MorphiaType.Number;
+                    break;
+               case "bigint":
+                    typeEnum = MorphiaType.Bigint;
+                    break;
+               case "boolean":
+                    typeEnum = MorphiaType.Boolean;
+                    break;
+               case "symbol":
+                    typeEnum = MorphiaType.Symbol;
+                    break;
+               case "undefined":
+                    typeEnum = MorphiaType.Undefined;
+                    break;
+               case "object":
+                    typeEnum = MorphiaType.Object;
+                    break;
+               case "function":
+                    typeEnum = MorphiaType.Function;
+                    break;
+               case "array":
+                    typeEnum = MorphiaType.Array;
+                    break;
+               default:
+                    throw new Error("Invalid type");
+          }
+
+          const keyWithType = `${path}${this.typeMarker}${typeEnum}`;
           if (!this.globalKeys.has(keyWithType)) {
                // Assign a new unique key if it doesn't exist
                this.globalKeys.set(keyWithType, this.keyCounter++);
@@ -158,10 +206,12 @@ export class Morphia {
           for (const [pathWithType, index] of this.globalKeys.entries()) {
                if (index >= input.length) continue;
                const value = input[index];
-               const [path, type] = pathWithType.split(this.typeMarker);
+               const [path, typeString] = pathWithType.split(this.typeMarker);
+
+               const type = parseFloat(typeString) as MorphiaType;
 
                // Skip the root object
-               if (path.length == 0 && type == "object" && index == 0) continue;
+               if (path.length == 0 && type == MorphiaType.Object && index == 0) continue;
 
                const parts = path.split(this.separator).map(this.decodeKey.bind(this));
                let current = result;
@@ -173,11 +223,11 @@ export class Morphia {
                     if (!current) continue;
 
                     if (isLastPart) {
-                         if (type === 'array' && typeof value === 'string' && value.startsWith(this.arrayMarker)) {
+                         if (type === MorphiaType.Array && typeof value === 'string' && value.startsWith(this.arrayMarker)) {
                               // Create an empty array with the correct length
                               const arrayLength = parseInt(value.slice(1), 10);
                               current[part] = new Array(arrayLength);
-                         } else if (type === 'object' && typeof value === 'string' && value.startsWith(this.objectMarker)) {
+                         } else if (type === MorphiaType.Object && typeof value === 'string' && value.startsWith(this.objectMarker)) {
                               // Create an empty object
                               current[part] = {};
                          } else {
