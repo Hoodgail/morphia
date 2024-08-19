@@ -5,6 +5,17 @@ type FlattenObject<T> = T extends object ? {
     [K in keyof T]: FlattenedValuesTuple<T[K]>;
 }[keyof T] extends infer U ? U extends any[] ? U : never : never : never;
 type Flatten<T> = FlattenedValuesTuple<T> extends (infer U)[] ? U : never;
+export declare enum MorphiaType {
+    Array = 0,
+    Object = 1,
+    Number = 2,
+    String = 3,
+    Bigint = 4,
+    Boolean = 5,
+    Symbol = 6,
+    Undefined = 7,
+    Function = 8
+}
 /**
  * Morphia class for converting complex objects to and from arrays.
  */

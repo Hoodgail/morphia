@@ -1,14 +1,15 @@
 var d = Object.defineProperty;
-var u = (p, e, s) => e in p ? d(p, e, { enumerable: !0, configurable: !0, writable: !0, value: s }) : p[e] = s;
-var l = (p, e, s) => u(p, typeof e != "symbol" ? e + "" : e, s);
-class k {
+var k = (t, e, o) => e in t ? d(t, e, { enumerable: !0, configurable: !0, writable: !0, value: o }) : t[e] = o;
+var b = (t, e, o) => k(t, typeof e != "symbol" ? e + "" : e, o);
+var m = /* @__PURE__ */ ((t) => (t[t.Array = 0] = "Array", t[t.Object = 1] = "Object", t[t.Number = 2] = "Number", t[t.String = 3] = "String", t[t.Bigint = 4] = "Bigint", t[t.Boolean = 5] = "Boolean", t[t.Symbol = 6] = "Symbol", t[t.Undefined = 7] = "Undefined", t[t.Function = 8] = "Function", t))(m || {});
+class w {
   constructor() {
-    l(this, "globalKeys", /* @__PURE__ */ new Map());
-    l(this, "separator", "|");
-    l(this, "arrayMarker", "@");
-    l(this, "objectMarker", "&");
-    l(this, "typeMarker", "#");
-    l(this, "keyCounter", 0);
+    b(this, "globalKeys", /* @__PURE__ */ new Map());
+    b(this, "separator", "|");
+    b(this, "arrayMarker", "@");
+    b(this, "objectMarker", "&");
+    b(this, "typeMarker", "#");
+    b(this, "keyCounter", 0);
   }
   /**
    * Gets or creates a unique key for a given path and type.
@@ -17,9 +18,41 @@ class k {
    * @returns {number} The unique key for the path and type.
    * @private
    */
-  getOrCreateKey(e, s) {
-    const y = `${e}${this.typeMarker}${s}`;
-    return this.globalKeys.has(y) || this.globalKeys.set(y, this.keyCounter++), this.globalKeys.get(y);
+  getOrCreateKey(e, o) {
+    let n;
+    switch (o) {
+      case "string":
+        n = 3;
+        break;
+      case "number":
+        n = 2;
+        break;
+      case "bigint":
+        n = 4;
+        break;
+      case "boolean":
+        n = 5;
+        break;
+      case "symbol":
+        n = 6;
+        break;
+      case "undefined":
+        n = 7;
+        break;
+      case "object":
+        n = 1;
+        break;
+      case "function":
+        n = 8;
+        break;
+      case "array":
+        n = 0;
+        break;
+      default:
+        throw new Error("Invalid type");
+    }
+    const r = `${e}${this.typeMarker}${n}`;
+    return this.globalKeys.has(r) || this.globalKeys.set(r, this.keyCounter++), this.globalKeys.get(r);
   }
   /**
    * Encodes a key to handle special characters.
@@ -47,43 +80,43 @@ class k {
    * @public
    */
   toArray(e) {
-    const s = [], y = [[e, "", /* @__PURE__ */ new Set()]];
-    for (; y.length > 0; ) {
-      const [r, n, f] = y.pop();
-      if (f.has(r))
+    const o = [], n = [[e, "", /* @__PURE__ */ new Set()]];
+    for (; n.length > 0; ) {
+      const [r, a, h] = n.pop();
+      if (h.has(r))
         throw new Error("Circular reference detected");
       if (Array.isArray(r)) {
-        const c = this.getOrCreateKey(n, "array");
-        s[c] = this.arrayMarker + r.length;
-        for (let i = 0; i < r.length; i++) {
-          const t = r[i], a = `${n}${n ? this.separator : ""}${this.encodeKey(i.toString())}`;
-          if (this.isPrimitive(t)) {
-            const o = typeof t, h = this.getOrCreateKey(a, o);
-            s[h] = t;
-          } else if (typeof t == "object" && t !== null) {
-            const o = new Set(f);
-            o.add(r), y.push([t, a, o]);
+        const f = this.getOrCreateKey(a, "array");
+        o[f] = this.arrayMarker + r.length;
+        for (let y = 0; y < r.length; y++) {
+          const s = r[y], i = `${a}${a ? this.separator : ""}${this.encodeKey(y.toString())}`;
+          if (this.isPrimitive(s)) {
+            const l = typeof s, c = this.getOrCreateKey(i, l);
+            o[c] = s;
+          } else if (typeof s == "object" && s !== null) {
+            const l = new Set(h);
+            l.add(r), n.push([s, i, l]);
           }
         }
       } else if (typeof r == "object" && r !== null) {
-        const c = this.getOrCreateKey(n, "object");
-        s[c] = this.objectMarker + Object.keys(r).length;
-        for (const [i, t] of Object.entries(r)) {
-          const a = this.encodeKey(i), o = n ? `${n}${this.separator}${a}` : a;
-          if (this.isPrimitive(t)) {
-            const h = typeof t, g = this.getOrCreateKey(o, h);
-            s[g] = t;
-          } else if (typeof t == "object" && t !== null) {
-            const h = new Set(f);
-            h.add(r), y.push([t, o, h]);
+        const f = this.getOrCreateKey(a, "object");
+        o[f] = this.objectMarker + Object.keys(r).length;
+        for (const [y, s] of Object.entries(r)) {
+          const i = this.encodeKey(y), l = a ? `${a}${this.separator}${i}` : i;
+          if (this.isPrimitive(s)) {
+            const c = typeof s, g = this.getOrCreateKey(l, c);
+            o[g] = s;
+          } else if (typeof s == "object" && s !== null) {
+            const c = new Set(h);
+            c.add(r), n.push([s, l, c]);
           }
         }
       } else if (this.isPrimitive(r)) {
-        const c = typeof r, i = this.getOrCreateKey(n, c);
-        s[i] = r;
+        const f = typeof r, y = this.getOrCreateKey(a, f);
+        o[y] = r;
       }
     }
-    return s;
+    return o;
   }
   /**
    * Converts an array representation back to its original complex object form.
@@ -94,26 +127,26 @@ class k {
   fromArray(e) {
     if (e.length == 0) throw new Error("Empty array input");
     if (this.globalKeys.size == 0) throw new Error("No keys found");
-    const s = {};
-    for (const [y, r] of this.globalKeys.entries()) {
+    const o = {};
+    for (const [n, r] of this.globalKeys.entries()) {
       if (r >= e.length) continue;
-      const n = e[r], [f, c] = y.split(this.typeMarker);
-      if (f.length == 0 && c == "object" && r == 0) continue;
-      const i = f.split(this.separator).map(this.decodeKey.bind(this));
-      let t = s;
-      for (let a = 0; a < i.length; a++) {
-        const o = i[a], h = a === i.length - 1;
-        if (t)
-          if (h)
-            if (c === "array" && typeof n == "string" && n.startsWith(this.arrayMarker)) {
-              const g = parseInt(n.slice(1), 10);
-              t[o] = new Array(g);
-            } else c === "object" && typeof n == "string" && n.startsWith(this.objectMarker) ? t[o] = {} : t[o] = n;
+      const a = e[r], [h, f] = n.split(this.typeMarker), y = parseFloat(f);
+      if (h.length == 0 && y == 1 && r == 0) continue;
+      const s = h.split(this.separator).map(this.decodeKey.bind(this));
+      let i = o;
+      for (let l = 0; l < s.length; l++) {
+        const c = s[l], g = l === s.length - 1;
+        if (i)
+          if (g)
+            if (y === 0 && typeof a == "string" && a.startsWith(this.arrayMarker)) {
+              const u = parseInt(a.slice(1), 10);
+              i[c] = new Array(u);
+            } else y === 1 && typeof a == "string" && a.startsWith(this.objectMarker) ? i[c] = {} : i[c] = a;
           else
-            t[o] === void 0 && (isNaN(Number(i[a + 1])) ? t[o] = {} : t[o] = []), t = t[o];
+            i[c] === void 0 && (isNaN(Number(s[l + 1])) ? i[c] = {} : i[c] = []), i = i[c];
       }
     }
-    return s;
+    return o;
   }
   /**
    * Gets the current mapping of keys to their indices.
@@ -142,5 +175,6 @@ class k {
   }
 }
 export {
-  k as Morphia
+  w as Morphia,
+  m as MorphiaType
 };
