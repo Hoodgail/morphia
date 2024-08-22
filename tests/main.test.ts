@@ -22,6 +22,12 @@ describe("Morphia", () => {
                expect(result).toEqual(expect.arrayContaining(["Alice", 25]));
           });
 
+          test("should handle undefined values", () => {
+               const input = { name: "John", age: 30, address: undefined, phone: null };
+               const result = morphia.toArray(input);
+               expect(result).toEqual(expect.arrayContaining(["John", 30, undefined, null]));
+          });
+
           test("should handle arrays", () => {
                const input = { colors: ["red", "green", "blue"] };
                const result = morphia.toArray(input);
