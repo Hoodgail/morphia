@@ -240,6 +240,12 @@ export class Morphia {
 
                               } else {
 
+                                   // If value is undefined, the type should have also been undefined, that means this property never existed in the original object of this array.
+                                   if (value === undefined) continue;
+
+                                   // If value is null, the type should have also been object, that means this property was added to the original object of this array.
+                                   if (value === null && type !== MorphiaType.Object) continue;
+
                                    current[part] = value;
 
                               }
