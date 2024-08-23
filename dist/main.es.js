@@ -19,39 +19,39 @@ class K {
    * @private
    */
   getOrCreateKey(e, i) {
-    let n;
+    let o;
     switch (i) {
       case "string":
-        n = 3;
+        o = 3;
         break;
       case "number":
-        n = 2;
+        o = 2;
         break;
       case "bigint":
-        n = 4;
+        o = 4;
         break;
       case "boolean":
-        n = 5;
+        o = 5;
         break;
       case "symbol":
-        n = 6;
+        o = 6;
         break;
       case "undefined":
-        n = 7;
+        o = 7;
         break;
       case "object":
-        n = 1;
+        o = 1;
         break;
       case "function":
-        n = 8;
+        o = 8;
         break;
       case "array":
-        n = 0;
+        o = 0;
         break;
       default:
         throw new Error("Invalid type");
     }
-    const r = `${e}${this.typeMarker}${n}`;
+    const r = `${e}${this.typeMarker}${o}`;
     return this.globalKeys.has(r) || this.globalKeys.set(r, this.keyCounter++), this.globalKeys.get(r);
   }
   /**
@@ -80,39 +80,39 @@ class K {
    * @public
    */
   toArray(e) {
-    const i = [], n = [[e, "", /* @__PURE__ */ new Set()]];
-    for (; n.length > 0; ) {
-      const [r, o, b] = n.pop();
+    const i = [], o = [[e, "", /* @__PURE__ */ new Set()]];
+    for (; o.length > 0; ) {
+      const [r, n, b] = o.pop();
       if (b.has(r))
         throw new Error("Circular reference detected");
       if (Array.isArray(r)) {
-        const f = this.getOrCreateKey(o, "array");
+        const f = this.getOrCreateKey(n, "array");
         i[f] = this.arrayMarker + r.length;
         for (let l = 0; l < r.length; l++) {
-          const s = r[l], a = `${o}${o ? this.separator : ""}${this.encodeKey(l.toString())}`;
+          const s = r[l], a = `${n}${n ? this.separator : ""}${this.encodeKey(l.toString())}`;
           if (this.isPrimitive(s)) {
             const y = typeof s, c = this.getOrCreateKey(a, y);
             i[c] = s;
           } else if (typeof s == "object" && s !== null) {
             const y = new Set(b);
-            y.add(r), n.push([s, a, y]);
+            y.add(r), o.push([s, a, y]);
           }
         }
       } else if (typeof r == "object" && r !== null) {
-        const f = this.getOrCreateKey(o, "object");
+        const f = this.getOrCreateKey(n, "object");
         i[f] = this.objectMarker + Object.keys(r).length;
         for (const [l, s] of Object.entries(r)) {
-          const a = this.encodeKey(l), y = o ? `${o}${this.separator}${a}` : a;
+          const a = this.encodeKey(l), y = n ? `${n}${this.separator}${a}` : a;
           if (this.isPrimitive(s)) {
-            const c = typeof s, d = this.getOrCreateKey(y, c);
-            i[d] = s;
+            const c = typeof s, u = this.getOrCreateKey(y, c);
+            i[u] = s;
           } else if (typeof s == "object" && s !== null) {
             const c = new Set(b);
-            c.add(r), n.push([s, y, c]);
+            c.add(r), o.push([s, y, c]);
           }
         }
       } else if (this.isPrimitive(r)) {
-        const f = typeof r, l = this.getOrCreateKey(o, f);
+        const f = typeof r, l = this.getOrCreateKey(n, f);
         i[l] = r;
       }
     }
@@ -128,26 +128,28 @@ class K {
     if (e.length == 0) throw new Error("Empty array input");
     if (this.globalKeys.size == 0) throw new Error("No keys found");
     const i = {};
-    for (const [n, r] of this.globalKeys.entries()) {
+    for (const [o, r] of this.globalKeys.entries()) {
       if (r >= e.length) continue;
-      const o = e[r], [b, f] = n.split(this.typeMarker), l = parseFloat(f);
+      const n = e[r], [b, f] = o.split(this.typeMarker), l = parseFloat(f);
       if (b.length == 0 && l == 1 && r == 0) continue;
       const s = b.split(this.separator).map(this.decodeKey.bind(this));
       let a = i;
       for (let y = 0; y < s.length; y++) {
-        const c = s[y], d = y === s.length - 1;
+        const c = s[y], u = y === s.length - 1;
         if (a)
-          if (d)
-            if (l === 0 && typeof o == "string" && o.startsWith(this.arrayMarker)) {
-              const u = parseInt(o.slice(1), 10);
-              a[c] = new Array(u);
-            } else if (l === 1 && typeof o == "string" && o.startsWith(this.objectMarker))
+          if (u)
+            if (l === 0 && typeof n == "string" && n.startsWith(this.arrayMarker)) {
+              const d = parseInt(n.slice(1), 10);
+              a[c] = new Array(d);
+            } else if (l === 1 && typeof n == "string" && n.startsWith(this.objectMarker))
               a[c] = {};
             else if (l == 7) {
-              if (o !== null) throw new Error(`Invalid value for undefined: ${o}, received type ${typeof o}`);
+              if (n !== null) throw new Error(`Invalid value for undefined: ${n}, received type ${typeof n}`);
               a[c] = void 0;
-            } else
-              a[c] = o;
+            } else {
+              if (n === void 0 || n === null && l !== 1) continue;
+              a[c] = n;
+            }
           else
             a[c] === void 0 && (isNaN(Number(s[y + 1])) ? a[c] = {} : a[c] = []), a = a[c];
       }
