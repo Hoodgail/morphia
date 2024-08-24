@@ -231,8 +231,24 @@ export class Morphia {
                               // Create an empty object
                               current[part] = {};
                          } else {
-                              // Assign the value directly for primitives
-                              current[part] = value;
+                              // Assign the value directly for primitives and undefined
+                              if (type == MorphiaType.Undefined) {
+
+                                   if (value !== null) throw new Error(`Invalid value for undefined: ${value}, received type ${typeof value}`);
+
+                                   current[part] = undefined;
+
+                              } else {
+
+                                   // If value is undefined, the type should have also been undefined, that means this property never existed in the original object of this array.
+                                   if (value === undefined) continue;
+
+                                   // If value is null, the type should have also been object, that means this property was added to the original object of this array.
+                                   if (value === null && type !== MorphiaType.Object) continue;
+
+                                   current[part] = value;
+
+                              }
                          }
                     } else {
                          // Create nested structures as needed
